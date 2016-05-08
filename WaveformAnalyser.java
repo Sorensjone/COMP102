@@ -63,8 +63,7 @@ public class WaveformAnalyser{
      */
     public void doRead(){
         UI.clearPanes();
-        
-        
+
         try{
             String filename = UIFileChooser.open(); //chooses the file
             Scanner scan = new Scanner(new File(filename));
@@ -112,7 +111,7 @@ public class WaveformAnalyser{
 
         int read = 0; // read is the value for the place in the array we are reading
         int read1 = 1; //read1 is the value for the place in the array after 'read' which allows me to draw a line from two points
-        int space = 3; //this spaces out the points so the wave isn't squeezed together
+        //int space = ((GRAPH_RIGHT - GRAPH_LEFT)/waveform.size()); //this spaces out the points so they fill the entire graphs width
 
         while(read < waveform.size()/** this is the size of the array list*/){
             double x = waveform.get(read); //reads the first value
@@ -123,7 +122,7 @@ public class WaveformAnalyser{
             UI.println(waveform.get(read1));
             UI.println(read1);
 
-            UI.drawLine((GRAPH_LEFT + (read * space)), (ZERO_LINE - x), (GRAPH_LEFT + (read1 * space)), (ZERO_LINE - x1));
+            UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
             //UI.drawRect((GRAPH_LEFT + (read * space)), (ZERO_LINE - x), 3, ZERO_LINE); Debugging as lines weren't drawing properly, no longer needed
 
             read++; //increments both read and read1, so the program reads the next 2 spots in the array
@@ -146,10 +145,19 @@ public class WaveformAnalyser{
             UI.println("No signal to analyse and report on");
             return;
         }
-        double fraction = 0;
         
-        if(Math.abs() > THRESHOLD){
+        double fraction = 0;
+        double distortion = 0;
+        int read = 1;
+        
+        while(read < waveform.size()/** this is the size of the array list*/){
+            if(Math.abs(waveform.get(read)) > THRESHOLD){
+                distortion = distortion + 1; //Adding 1 to the value of distortion to find out how many values were distorted
+                UI.println(distortion); //debugging
+                fraction = (waveform.size()) / distortion;
+            }
             
+            read++;
         }
 
         UI.printf("Fraction of time the signal is distorted %4.3f\n", fraction);
@@ -170,7 +178,6 @@ public class WaveformAnalyser{
         }
         this.doDisplay();
         /*# YOUR CODE HERE */
-
     }
 
     /**
