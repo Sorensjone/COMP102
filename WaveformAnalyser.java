@@ -111,25 +111,23 @@ public class WaveformAnalyser{
 
         int read = 0; // read is the value for the place in the array we are reading
         int read1 = 1; //read1 is the value for the place in the array after 'read' which allows me to draw a line from two points
-        //int space = ((GRAPH_RIGHT - GRAPH_LEFT)/waveform.size()); //this spaces out the points so they fill the entire graphs width
 
-        while(read < waveform.size()/** this is the size of the array list*/){
+        while(read1 < waveform.size()/** this is the size of the array list*/){
             double x = waveform.get(read); //reads the first value
             double x1 = waveform.get(read1); //reads the next value so a line can be drawn between them
 
-            UI.println(waveform.get(read)); //Debugging, ensuring I get all the values correctly before I go to plot them
-            UI.println(read);
+            /**UI.println(waveform.get(read)); //Debugging, ensuring I get all the values correctly before I go to plot them
+            UI.println(read); //Commented out as no longer needed
             UI.println(waveform.get(read1));
-            UI.println(read1);
+            UI.println(read1);*/
 
             UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
             //UI.drawRect((GRAPH_LEFT + (read * space)), (ZERO_LINE - x), 3, ZERO_LINE); Debugging as lines weren't drawing properly, no longer needed
 
-            read++; //increments both read and read1, so the program reads the next 2 spots in the array
+            read++;
             read1++;
 
         }
-
     }
 
     /**
@@ -145,18 +143,18 @@ public class WaveformAnalyser{
             UI.println("No signal to analyse and report on");
             return;
         }
-        
+
         double fraction = 0;
         double distortion = 0;
         int read = 1;
-        
+
         while(read < waveform.size()/** this is the size of the array list*/){
             if(Math.abs(waveform.get(read)) > THRESHOLD){
                 distortion = distortion + 1; //Adding 1 to the value of distortion to find out how many values were distorted
-                UI.println(distortion); //debugging
+                //UI.printf("%4.3f\n", distortion); //debugging
                 fraction = (waveform.size()) / distortion;
             }
-            
+
             read++;
         }
 
@@ -177,7 +175,33 @@ public class WaveformAnalyser{
             return;
         }
         this.doDisplay();
-        /*# YOUR CODE HERE */
+
+        int read = 0; //Increments the array to read the next value
+        double min = Double.MAX_VALUE; //Sets the min to MAX_VALUE so that any number will be small then it
+        double max = Double.MIN_VALUE; //Sets the max to MIN_VALUE so that any number will be larger then it
+
+        while(read < waveform.size()/** this is the size of the array list*/){
+            double current = waveform.get(read);
+
+            if(current > max){ //Detemines if the next value that is read is larger then the current max value
+                max = current; //Replaces the max value with the currently read value if it is larger
+
+            } else if (current < min){ //Does the same for the min values
+                min = current;
+
+            }
+            read++;
+            
+        }
+
+        UI.setColor(Color.red); //Sets color to green and draws a line tangentially to the min value
+        UI.drawLine(GRAPH_LEFT, ZERO_LINE - min, GRAPH_LEFT + this.waveform.size(), ZERO_LINE - min);
+        //UI.println("The min value is " + min); //Debugging, ensuring it really is reading the correct min value
+
+        UI.setColor(Color.green); //Sets color to red and draws a line tengentially to the max value
+        UI.drawLine(GRAPH_LEFT, ZERO_LINE - max, GRAPH_LEFT + this.waveform.size(), ZERO_LINE - max);
+        //UI.println("The max value is " + max);
+
     }
 
     /**
@@ -204,7 +228,33 @@ public class WaveformAnalyser{
         UI.drawLine(GRAPH_LEFT, ZERO_LINE, GRAPH_LEFT + this.waveform.size() , ZERO_LINE); 
 
         // draw thresholds
-        /*# YOUR CODE HERE */
+        int read = 0; // read is the value for the place in the array we are reading
+        int read1 = 1; //read1 is the value for the place in the array after 'read' which allows me to draw a line from two points
+
+        //UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
+        UI.drawLine(GRAPH_LEFT, ZERO_LINE + THRESHOLD, GRAPH_LEFT + this.waveform.size(), ZERO_LINE + THRESHOLD); //draws a line at the top threshold
+        UI.drawLine(GRAPH_LEFT, ZERO_LINE - THRESHOLD, GRAPH_LEFT + this.waveform.size(), ZERO_LINE - THRESHOLD); //draws a line at the bottom threshold
+
+        while(read1 < waveform.size()/** this is the size of the array list*/){
+            double x = waveform.get(read); //reads the first value
+            double x1 = waveform.get(read1); //reads the next value so a line can be drawn between them
+            
+            if(x1 > THRESHOLD || x > THRESHOLD){ //this determines if the values read from the array are greater then the threshold and draws them red if they are
+                UI.setColor(Color.red);
+                UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
+            }
+            else if(x1 < -THRESHOLD || x < -THRESHOLD){ //this determines if the values read from the array are greater then the threshold and draws them red if they are
+                UI.setColor(Color.red);
+                UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
+            }
+            else if(x1 < THRESHOLD || x < THRESHOLD){ //this determines if the values read from the array are greater then the threshold and draws them blue if they aren't
+                UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
+            }
+
+            read++; //increments both read and read1, so the program reads the next 2 spots in the array
+            read1++;
+
+        }
 
     }
 
@@ -217,8 +267,32 @@ public class WaveformAnalyser{
      * You may assume that peaks values differ from their neighbouring points.
      */
     public void doHighlightPeaks() {
-        this.doDisplayDistortion(); //use doDisplay if doDisplayDistortion isn't complete
-        /*# YOUR CODE HERE */
+        this.doDisplayDistortion();
+        
+        int read = 0; // read is the value for the place in the array we are reading
+        int read1 = 1; //read1 is the value for the place in the array after 'read' which allows me to draw a line from two points
+        int read2 = 2;
+
+        while(read2 < waveform.size()/** this is the size of the array list*/){
+            double x = waveform.get(read); //reads the first value
+            double x1 = waveform.get(read1);
+            double x2 = waveform.get(read2);
+            
+            if(x1 > x && x1 > x2){ //this determines if the values read from the array are greater then the threshold and draws them red if they are
+                UI.setColor(Color.green);
+                UI.drawOval((GRAPH_LEFT + read1 - (SIZE_CIRCLE/2)), (ZERO_LINE - x1 - (SIZE_CIRCLE/2)), SIZE_CIRCLE, SIZE_CIRCLE);
+                
+            } else if (x1 < x && x1 < x2){
+                UI.setColor(Color.green);
+                UI.drawOval((GRAPH_LEFT + read1 - (SIZE_CIRCLE/2)), (ZERO_LINE - x1 - (SIZE_CIRCLE/2)), SIZE_CIRCLE, SIZE_CIRCLE);
+                
+            }
+
+            read++; //increments both read and read1, so the program reads the next 2 spots in the array
+            read1++;
+            read2++;
+
+        }
 
     }
 
