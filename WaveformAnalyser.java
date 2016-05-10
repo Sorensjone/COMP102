@@ -191,7 +191,7 @@ public class WaveformAnalyser{
 
             }
             read++;
-            
+
         }
 
         UI.setColor(Color.red); //Sets color to green and draws a line tangentially to the min value
@@ -238,7 +238,7 @@ public class WaveformAnalyser{
         while(read1 < waveform.size()/** this is the size of the array list*/){
             double x = waveform.get(read); //reads the first value
             double x1 = waveform.get(read1); //reads the next value so a line can be drawn between them
-            
+
             if(x1 > THRESHOLD || x > THRESHOLD){ //this determines if the values read from the array are greater then the threshold and draws them red if they are
                 UI.setColor(Color.red);
                 UI.drawLine((GRAPH_LEFT + read), (ZERO_LINE - x), (GRAPH_LEFT + read1), (ZERO_LINE - x1));
@@ -253,6 +253,7 @@ public class WaveformAnalyser{
 
             read++; //increments both read and read1, so the program reads the next 2 spots in the array
             read1++;
+            UI.setColor(Color.black); //resetting the colour value
 
         }
 
@@ -268,7 +269,7 @@ public class WaveformAnalyser{
      */
     public void doHighlightPeaks() {
         this.doDisplayDistortion();
-        
+
         int read = 0; // read is the value for the place in the array we are reading
         int read1 = 1; //read1 is the value for the place in the array after 'read' which allows me to draw a line from two points
         int read2 = 2;
@@ -277,20 +278,21 @@ public class WaveformAnalyser{
             double x = waveform.get(read); //reads the first value
             double x1 = waveform.get(read1);
             double x2 = waveform.get(read2);
-            
+
             if(x1 > x && x1 > x2){ //this determines if the values read from the array are greater then the threshold and draws them red if they are
                 UI.setColor(Color.green);
                 UI.drawOval((GRAPH_LEFT + read1 - (SIZE_CIRCLE/2)), (ZERO_LINE - x1 - (SIZE_CIRCLE/2)), SIZE_CIRCLE, SIZE_CIRCLE);
-                
+
             } else if (x1 < x && x1 < x2){
                 UI.setColor(Color.green);
                 UI.drawOval((GRAPH_LEFT + read1 - (SIZE_CIRCLE/2)), (ZERO_LINE - x1 - (SIZE_CIRCLE/2)), SIZE_CIRCLE, SIZE_CIRCLE);
-                
+
             }
 
             read++; //increments both read and read1, so the program reads the next 2 spots in the array
             read1++;
             read2++;
+            UI.setColor(Color.black); //resetting the colour value
 
         }
 
@@ -304,7 +306,37 @@ public class WaveformAnalyser{
      * Then redraws the waveform.
      */
     public void doNormalise() {
-        /*# YOUR CODE HERE */
+
+        int read = 0; //Increments the array to read the next value
+        int read1 = 1;
+        
+        
+
+        double min = Double.MAX_VALUE; //Sets the min to MAX_VALUE so that any number will be small then it
+        double max = Double.MIN_VALUE; //Sets the max to MIN_VALUE so that any number will be larger then it
+        double newThreshold = 0;
+
+        while(read < waveform.size()/** this is the size of the array list*/){
+            double current = waveform.get(read);
+
+            if(current > max){ //Detemines if the next value that is read is larger then the current max value
+                max = current; //Replaces the max value with the currently read value if it is larger
+
+            } else if (current < min){ //Does the same for the min values
+                min = current;
+
+            } else if(Math.abs(min) > max){
+                newThreshold = Math.abs(min);
+
+            } else if (Math.abs(min) < max){
+                newThreshold = max;
+
+            }
+            read++;
+
+        }
+
+        UI.println("Distortion = " + newThreshold);
 
         this.doDisplayDistortion(); //use doDisplay if doDisplayDistortion isn't complete
     }
